@@ -9,23 +9,21 @@
 define('LOGIN','admin');
 define('PASSWORD','admin');
 
+//More info for the developer
 $developer_ips=array(
     "127.0.0.1",
-    "91.217.137.248/255.255.255.248",
-    "172.16.10.0/255.255.255.0",
-    "89.23.62.144/255.255.255.248","89.23.62.192/255.255.255.248",
-    "2001:67c:13e4:1::1","2001:67c:13e4:1000::cc","2001:67c:13e4:1000::37"
+    "192.168.255.0/255.255.255.248",
 );
+//
 
+//Hosts that allowed to post data
 $allowedHosts=array(
-    '91.217.137.35'=>array(
-	"work.mega-net.ru",
+    '1.1.1.1'=>array(
+	"test1.example.ru",
+	"test2.example.ru",
     ),
-    '2001:67c:13e4:2::2'=>array(
-	"work.mega-net.ru",
-    ),
-    '2001:67c:13e4:403::241' => "subnets.mega-net.ru",
-    '172.16.10.39'=>"virus.mega-net.ru",
+    '2.2.2.2'=>"test3.example.ru",
 );
+//
 
 ?>
