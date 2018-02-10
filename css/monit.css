@@ -146,7 +146,7 @@ th, td.head {
     white-space: nowrap;
 }
 
-tr.gray{
+tr.gray, td.gray{
     background-color: #dbdada;
 }
 
@@ -357,6 +357,16 @@ span.icon-info{
     vertical-align: middle;
     cursor: pointer;
 }
+span.icon-globus{
+    background: url(../img/globus.png) no-repeat;
+    display: inline-block;
+    height: 16px;
+    width: 16px;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+/* -------------------- */
 
 div.buttons { font-size: 5px; margin: 20px 0; white-space: nowrap; }
 .button-main {

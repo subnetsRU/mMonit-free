@@ -40,6 +40,14 @@ print "\n<div id=\"content\">";
     print "<div id=\"bottom\"></div>";
 print "</div>";
 
+print "<div id=\"modalDiv\" class=\"modal\">";
+    print "<div id=\"modal\" class=\"modal-window hidden\">";
+	print "<div id=\"modalHeader\" class=\"modal-header\">Заголовок</div>";
+	print "<div id=\"modalContent\" class=\"modal-content\"></div>";
+	print "<span id=\"modalClose\" class=\"modal-close\" alt=\"Закрыть\" title=\"Закрыть\" ></span>";
+//		styles: windowStyles,
+print "</div>";
+
 print "\n<script>\n";
 print "window.addEvent( 'domready', function( ) {\n";
     print "
@@ -50,6 +58,11 @@ print "window.addEvent( 'domready', function( ) {\n";
     if (chk_auth()){
 	print "MONIT.addMenuClick( { id: 'mainMenu' } );\n";
     }
+    print "
+    $('modalClose').addEvent('click',function(){
+	MONIT.closeModal();
+    });
+    ";
 print "});\n";
 print "</script>\n";
 

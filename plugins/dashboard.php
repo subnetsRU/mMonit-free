@@ -38,28 +38,89 @@ if (chk_auth(1)){
 	}
 
 	if (count($err) == 0){
-	    print "<table>";
+	    $hosts_div=array();
+	    printf("<h3>Найдено хостов: %d</h3>",count($get_hosts['hosts']));
+	    print "<table id=\"hostsTBL\">";
 	    print "<thead>";
-		print "<th>#</th>";
-		print "<th>Дата обновления</th>";
-		print "<th>incarnation</th>";
-		print "<th>Хост</th>";
-		print "<th>ID хоста</th>";
-		print "<th>Версия monit</th>";
+		print "<tr>";
+		    print "<th rowspan=2>#</th>";
+		    print "<th rowspan=2>&nbsp;</th>";
+		    print "<th rowspan=2>Хост</th>";
+		    print "<th rowspan=2>Дата обновления</th>";
+		    print "<th colspan=6>Описание</th>";
+		    print "<th rowspan=2>Версия monit</th>";
+		print "</tr>";
+		print "<tr>";
+		    print "<th>Poll</th>";
+		    print "<th>Uptime</th>";
+		    print "<th>OS</th>";
+		    print "<th>CPUs</th>";
+		    print "<th>MEM</th>";
+		    print "<th>Swap</th>";
+		print "</tr>";
 	    print "</thead>";
 	    $nn=1;
 	    foreach($get_hosts['hosts'] as $k=>$v){
-		print "<tr class=\"center\">";
+		$data = $v['data'];
+		$class = "";
+		$poll = isset($data['server']['poll']) ? $data['server']['poll'] : 0;
+		if (!$poll){
+		    $class="gray";
+		}elseif (time() > ($data['fdate']+$poll*2)){
+		    $class="warn";
+		    if (time() > ($data['fdate']+$poll*4)){
+			$class="alarm";
+		    }
+		}
+		$host_url = "";
+		if (isset($data['server']['httpd']) && is_array($data['server']['httpd'])){
+		    $httpd = $data['server']['httpd'];
+		    if (count($httpd) == 3){
+			$host_url=sprintf("<a href=\"%s://%s:%d\" target=\"_blank\"><span class=\"icon-globus\"></span></a>",(isset($httpd['ssl']) && $httpd['ssl']) ? "https" : "http",isset($httpd['address']) ? $httpd['address'] : "unknown", isset($httpd['port']) ? $httpd['port'] : 0);
+		    }
+		}
+		printf("<tr class=\"center%s\">",$class ? " ".$class : "");
 		    printf("<td>%d</td>",$nn++);
-		    printf("<td>%s</td>",isset($v['data']['fdate']) ? date("d.m.Y H:i:s",$v['data']['fdate']) : "неизвестна");
-		    printf("<td>%s</td>",isset($v['data']['host_header']['incarnation']) ? date("d.m.Y H:i:s",$v['data']['host_header']['incarnation']) : "неизвестна");
-		    printf("<td>%s</td>",isset($v['name']) ? $v['name'] : "отсутствует");
-		    printf("<td>%s</td>",$k);
-		    printf("<td>%s</td>",isset($v['data']['host_header']['version']) ? $v['data']['host_header']['version'] : "отсутствует");
+		    print "<td>X</td>";
+		    $title=sprintf("ID хоста: %s",$k);
+		    printf("<td alt=\"%s\" title=\"%s\"><b><a class=\"click\" data-id=\"%s\">%s</a></b>%s</td>",$title,$title,$k,isset($v['name']) ? $v['name'] : "отсутствует",$host_url ? " ".$host_url : "");
+		    $title=sprintf("incarnation: %s",isset($data['host_header']['incarnation']) ? date("d.m.Y H:i:s",$data['host_header']['incarnation']) : "неизвестна");
+		    printf("<td alt=\"%s\" title=\"%s\">%s</td>",$title,$title,isset($data['fdate']) ? date("d.m.Y H:i:s",$data['fdate']) : "неизвестна");
+
+		    printf("<td>%s сек.</td>",$poll ? $poll : "n/a");
+		    printf("<td>%s</td>",isset($data['server']['uptime']) ? $data['server']['uptime'] : "n/a");
+		    printf("<td>%s %s %s</td>",isset($data['platform']['name']) ? $data['platform']['name'] : "",isset($data['platform']['release']) ? $data['platform']['release'] : "",isset($data['platform']['machine']) ? $data['platform']['machine'] : "");
+		    printf("<td>%s</td>",isset($data['platform']['cpu']) ? $data['platform']['cpu'] : "n/a");
+		    printf("<td>%s</td>",isset($data['platform']['memory']) ? $data['platform']['memory'] : "n/a");
+		    printf("<td>%s</td>",isset($data['platform']['swap']) ? $data['platform']['swap'] : "n/a");
+		    
+		    printf("<td>%s</td>",isset($data['host_header']['version']) ? $data['host_header']['version'] : "отсутствует");
 		print "</tr>";
+
+		$host_div=sprintf("<div id=\"host_%s\" class=\"hidden\">",$k);
+		$host_div .= print_r($data['services'],true);
+		$host_div .= "</div>";
+		$hosts_div[]=$host_div;
 	    }
 	    print "</table>";
+	    print implode("\n",$hosts_div);
+	    
 	    //deb($get_hosts);
+	    
+?>
+	    <script>
+	    window.addEvent( 'domready', function( ) {
+		Array.each( $$('#hostsTBL a.click'), function( v, i ){
+		    v.addEvent('click',function( el ){
+			console.log(v.get('data-id'));
+			$('modalHeader').set('html',v.get('text') + ' <small>(' + v.get('data-id') + ')</small>');
+			$('modalContent').set('html',$('host_'+v.get('data-id')).get('html'));
+			MONIT.openModal();
+		    });
+		});
+	    })
+	    </script>
+<?php
 	}
 
 	if (count($err) > 0){

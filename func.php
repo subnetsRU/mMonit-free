@@ -432,6 +432,7 @@ function head($title="",$full_head=1){
 	    $head.=sprintf("<script type=\"text/javascript\" src=\"%sjs/main.js.php?v=0.1\"></script>\n",URL);
 	}
 	$head.=sprintf("<link rel=\"stylesheet\" type=\"text/css\" href=\"%scss/monit.css?v=0.1\">\n",URL);
+	$head.=sprintf("<link rel=\"stylesheet\" type=\"text/css\" href=\"%scss/megaModal.css?v=0.1\">\n",URL);
         $head.="</head>\n";
 	$head.="<body id=\"body\">\n";
  return $head;

@@ -9,4 +9,4 @@
 
 4. В конфигурации monit (https://mmonit.com/monit/documentation/monit.html#MANAGE-YOUR-MONIT-INSTANCES) укажите путь для отправки данных:
 
-set mmonit http://ip-or-hostname-of-the-web-server/collector/index.php
+set mmonit http://ip-or-hostname-of-the-web-server/mMonit-free/collector/index.php
