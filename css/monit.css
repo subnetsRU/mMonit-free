@@ -123,9 +123,8 @@ ul.tabs{
 }
 ul.spisok {
     margin-left: 20px;
-    list-style-image: none;
-    list-style-type: none;
-    font-family: Calibri,sans-serif,Arial;
+    font-family: Arial,sans-serif;
+    text-align: left;
 }
 ul.spisok li ul {
     margin-left: 40px;

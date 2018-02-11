@@ -33,10 +33,23 @@ if (is_file($const)){
 }
 
 if (!defined('LOGIN') || !defined('PASSWORD')){
-    $err[]=sprintf("В конфигурации отсутствуют логин или пароль%s",is_developer() ? sprintf(" (file: %s, func: %s, line: %s)",__FILE__,__FUNCTION__,__LINE__) : "");
+    $err[]=sprintf("В конфигурации отсутствуют логин или пароль%s",is_developer() ? sprintf(" (file: %s, line: %s)",__FILE__,__LINE__) : "");
 }else{
     if (!LOGIN || !PASSWORD){
-	$err[]=sprintf("В конфигурации логин или пароль пусты%s",is_developer() ? sprintf(" (file: %s, func: %s, line: %s)",__FILE__,__FUNCTION__,__LINE__) : "");
+	$err[]=sprintf("В конфигурации логин или пароль пусты%s",is_developer() ? sprintf(" (file: %s, line: %s)",__FILE__,__LINE__) : "");
+    }
+}
+
+if (!defined('DATA_DIR') || !DATA_DIR){
+    $err[]=sprintf("В конфигурации не указана директория с данными (DATA_DIR)%s",is_developer() ? sprintf(" (file: %s, line: %s)",__FILE__,__LINE__) : "");
+}else{
+    $dataDir=sprintf("%s/%s",LOC,DATA_DIR);
+    if (!is_dir($dataDir)){
+	$err[]=sprintf("Директории для данных%s несуществует%s",is_developer() ? " ".$dataDir : "",is_developer() ? sprintf(" (file: %s, line: %s)",__FILE__,__LINE__) : "");
+    }else{
+	if (!is_writable($dataDir)){
+	    $err[]=sprintf("Отсутствуют права на запись в директорию для данных%s%s",is_developer() ? " ".$dataDir : "",is_developer() ? sprintf(" (file: %s, line: %s)",__FILE__,__LINE__) : "");
+	}
     }
 }
 
@@ -44,11 +57,17 @@ if (count($err) == 0){
     define('AUTH',md5(sprintf("%s%s",LOGIN,PASSWORD)));
 }else{
     print head("",0);
-    print error($err,"Критические ошибки");
+    print "<div id=\"centerArea\">";
+	print "<div id=\"workArea\" class=\"center\">";
+	    print "<div style=\"margin-top: 10%;\">";
+		printf("<h1>%s%s</h1>",(defined('SYSTEM_NAME') && SYSTEM_NAME) ? SYSTEM_NAME : "",(defined('VERSION') && VERSION) ? sprintf(" v%s",VERSION) : "");
+		print error($err,sprintf("Критическ%s ошибк%s",count($err) == 1 ? "ая" : "ие", count($err) == 1 ? "а" : "и"));
+	    print "</div>";
+	print "</div>";
+    print "<div>";
     print foot();
     exit(0);
 }
-
 
 if (!defined('REMOTE_ADDR')){
     define('REMOTE_ADDR','0.0.0.0');
@@ -431,7 +450,7 @@ function head($title="",$full_head=1){
 	    $head.=sprintf("<script type=\"text/javascript\" src=\"%sjs/mt151_c.js\"></script>\n",URL);
 	    $head.=sprintf("<script type=\"text/javascript\" src=\"%sjs/main.js.php?v=0.1\"></script>\n",URL);
 	}
-	$head.=sprintf("<link rel=\"stylesheet\" type=\"text/css\" href=\"%scss/monit.css?v=0.1\">\n",URL);
+	$head.=sprintf("<link rel=\"stylesheet\" type=\"text/css\" href=\"%scss/monit.css?v=0.2\">\n",URL);
 	$head.=sprintf("<link rel=\"stylesheet\" type=\"text/css\" href=\"%scss/megaModal.css?v=0.1\">\n",URL);
         $head.="</head>\n";
 	$head.="<body id=\"body\">\n";
@@ -446,7 +465,7 @@ function error( $text, $header = "" ){
     if (is_array($text)){
 	$tmp=$text;
 	if (count($tmp)>1){
-	    $text="<ul>";
+	    $text="<ul class=\"spisok\">";
 	    foreach ($tmp as $v){
 		$text.=sprintf("<li>%s</li>",$v);
 	    }
@@ -569,7 +588,7 @@ function menu(){
 function get_hosts(){
     $ret = array();
     $err = array();
-    $host_data_dir="collector/data";
+    $host_data_dir=DATA_DIR;
 
     $list=read_dir(
 	array(
@@ -609,6 +628,143 @@ function get_hosts(){
     if (count($err) > 0){
 	$ret['error']=$err;
     }
+ return $ret;
+}
+
+function parse_services( $data = array() ){
+    global $services;
+    
+    $ret=array();
+    foreach ($services as $k=>$v){
+	$type[$v['key']] = array();
+    }
+    //Хост без сервисов
+    if (isset($data['service']['@attributes'])){
+	$tmp=$data['service'];
+	$data['service']=array($tmp);
+	unset($tmp);
+    }
+    //
+    foreach($data as $key=>$srv){
+	if (is_array($srv)){
+	    foreach ($srv as $k=>$v){
+		if (isset($v['type'])){
+		    $key = $services[$v['type']]['key'];
+		    if ($v['status'] > 0){
+			$ret['alarm'] = 1;
+		    }
+		    if ($v['type'] == 5){
+			//system
+			$type[$key][]="<table>";
+			$type[$key][]="<thead>";
+			    $type[$key][]="<tr>";
+				$type[$key][]="<th>Load</th>";
+				$type[$key][]="<th>CPU</th>";
+				$type[$key][]="<th>Memory</th>";
+				$type[$key][]="<th>Swap</th>";
+			    $type[$key][]="</tr>";
+			$type[$key][]="</thead>";
+			$type[$key][]=sprintf("<tr class=\"center%s\">",$v['status'] == 2 ? " alarm" : "");
+			    $type[$key][]=sprintf("<td>[%s]</td>",implode("] [",$v[$key]['load']));
+			    $type[$key][]=sprintf("<td>%s%%us,%s%%sy</td>",$v[$key]['cpu']['user'],$v[$key]['cpu'][$key]);
+			    $type[$key][]=sprintf("<td>%s%% [%skb]</td>",$v[$key]['memory']['percent'],$v[$key]['memory']['kilobyte']);
+			    $type[$key][]=sprintf("<td>%s%% [%skb]</td>",$v[$key]['swap']['percent'],$v[$key]['swap']['kilobyte']);
+			$type[$key][]="</tr>";
+			$type[$key][]="</table>";
+		    }elseif ($v['type'] == 3){
+			//process
+			$type[$key][]=sprintf("<h3>%s</h3>",$v['@attributes']['name']);
+			$type[$key][]="<table>";
+			$type[$key][]="<thead>";
+			    $type[$key][]="<tr>";
+				$type[$key][]="<th>CPU</th>";
+				$type[$key][]="<th>Memory</th>";
+				$type[$key][]="<th>uptime</th>";
+				$type[$key][]="<th>PID</th>";
+				$type[$key][]="<th>UID</th>";
+				$type[$key][]="<th>GID</th>";
+				$type[$key][]="<th>threads</th>";
+				$type[$key][]="<th>children</th>";
+			    $type[$key][]="</tr>";
+			$type[$key][]="</thead>";
+			$type[$key][]=sprintf("<tr class=\"center%s\">",$v['status'] == 2 ? " alarm" : "");
+			    $type[$key][]=sprintf("<td>%s%%</td>",$v['cpu']['percenttotal']);
+			    $type[$key][]=sprintf("<td>%s%% [%skb]</td>",$v['memory']['percenttotal'],$v['memory']['kilobytetotal']);
+			    $type[$key][]=sprintf("<td>%s</td>",$v['uptime']);
+			    $type[$key][]=sprintf("<td>%s</td>",$v['pid']);
+			    $type[$key][]=sprintf("<td>%s</td>",$v['uid']);
+			    $type[$key][]=sprintf("<td>%s</td>",$v['gid']);
+			    $type[$key][]=sprintf("<td>%s</td>",$v['threads']);
+			    $type[$key][]=sprintf("<td>%s</td>",$v['children']);
+			$type[$key][]="</tr>";
+			$type[$key][]="</table>";
+		    }elseif ($v['type'] == 8){
+			//Network
+			$type[$key][]=sprintf("<h3>%s</h3>",$v['@attributes']['name']);
+			$type[$key][]="<table>";
+			$type[$key][]="<thead>";
+			    $type[$key][]="<tr>";
+				$type[$key][]="<th rowspan=2>Линк</th>";
+				$type[$key][]="<th rowspan=2>Скорость</th>";
+				$type[$key][]="<th colspan=3>Download</th>";
+				$type[$key][]="<th colspan=3>Upload</th>";
+			    $type[$key][]="</tr>";
+			    $type[$key][]="<tr>";
+				$type[$key][]="<th>Пакеты</th>";
+				$type[$key][]="<th>Байты</th>";
+				$type[$key][]="<th>Ошибки</th>";
+				$type[$key][]="<th>Пакеты</th>";
+				$type[$key][]="<th>Байты</th>";
+				$type[$key][]="<th>Ошибки</th>";
+			    $type[$key][]="</tr>";
+			$type[$key][]="</thead>";
+			$type[$key][]=sprintf("<tr class=\"center%s\">",$v['status'] == 2 ? " alarm" : "");
+			    $type[$key][]=sprintf("<td>%s</td>",$v['link']['state'] == 1 ? "Да" : "Нет");
+			    $type[$key][]=sprintf("<td>%sMbit %s</td>",$v['link']['speed']/1000000,$v['link']['duplex'] == 1 ? "full-duplex" : "half-duplex");
+			    $type[$key][]=sprintf("<td>%s</td>",$v['link']['download']['packets']['total']);
+			    $type[$key][]=sprintf("<td>%s</td>",$v['link']['download']['bytes']['total']);
+			    $type[$key][]=sprintf("<td%s>%s</td>",$v['link']['download']['errors']['total'] > 0 ? " class=warn" : "",$v['link']['download']['errors']['total']);
+			    $type[$key][]=sprintf("<td>%s</td>",$v['link']['upload']['packets']['total']);
+			    $type[$key][]=sprintf("<td>%s</td>",$v['link']['upload']['bytes']['total']);
+			    $type[$key][]=sprintf("<td%s>%s</td>",$v['link']['upload']['errors']['total'] > 0 ? " class=warn" : "",$v['link']['upload']['errors']['total']);
+			$type[$key][]="</tr>";
+			$type[$key][]="</table>";
+
+			if ($v['link']['upload']['errors']['total'] > 0 || $v['link']['download']['errors']['total'] > 0){
+			    $ret['alarm'] = 1;
+			}
+		    }elseif ($v['type'] == 0){
+			//Filesystem
+			$type[$key][]=sprintf("<h3>%s</h3>",$v['@attributes']['name']);
+			$type[$key][]="<table>";
+			$type[$key][]="<thead>";
+			    $type[$key][]="<tr>";
+				$type[$key][]="<th>Тип</th>";
+				$type[$key][]="<th>Использовано места</th>";
+				$type[$key][]="<th>Использовано inodes</th>";
+			    $type[$key][]="</tr>";
+			$type[$key][]="</thead>";
+			$type[$key][]=sprintf("<tr class=\"center%s\">",$v['status'] == 2 ? " alarm" : "");
+			    $type[$key][]=sprintf("<td>%s</td>",$v['fstype']);
+			    $type[$key][]=sprintf("<td>%s%% [%s]</td>",$v['block']['percent'],$v['block']['usage']);
+			    $type[$key][]=sprintf("<td>%s%% [%s]</td>",$v['inode']['percent'],$v['inode']['usage']);
+			$type[$key][]="</tr>";
+			$type[$key][]="</table>";
+		    }
+		}else{
+		    deb("TYPE NOT SET");
+		    deb($v);
+		}
+	    }
+	}
+    }
+
+    foreach ($type as $k=>$v){
+	if (count($type[$k]) > 0){
+	    $ret[$k] = implode("\n",$type[$k]);
+	}
+    }
+
  return $ret;
 }
 ?>

@@ -6,6 +6,7 @@
 $pathinfo = dirname(__FILE__);
 require_once(realpath(sprintf("%s/../func.php",$pathinfo)));
 $location=preg_replace("/^\//","",$_SERVER['REQUEST_URI']);
+global $services;
 //deb("Request: ".print_r($param,true));
 
 if (chk_auth(1)){
@@ -44,7 +45,6 @@ if (chk_auth(1)){
 	    print "<thead>";
 		print "<tr>";
 		    print "<th rowspan=2>#</th>";
-		    print "<th rowspan=2>&nbsp;</th>";
 		    print "<th rowspan=2>Хост</th>";
 		    print "<th rowspan=2>Дата обновления</th>";
 		    print "<th colspan=6>Описание</th>";
@@ -62,6 +62,27 @@ if (chk_auth(1)){
 	    $nn=1;
 	    foreach($get_hosts['hosts'] as $k=>$v){
 		$data = $v['data'];
+
+		//Host detailes div
+		$host_div=array();
+		$host_div[]=sprintf("<div id=\"host_%s\" class=\"hidden\">",$k);
+		if(isset($data['services']) && is_array($data['services'])){
+		    $hs=parse_services($data['services']);
+		    foreach ($services as $sk=>$sv){
+			if (isset($hs[$sv['key']])){
+			    $host_div[]=sprintf("<h2>%s</h2>",$sv['name']);
+			    $host_div[]=$hs[$sv['key']];
+			    $host_div[]="<HR>";
+			}
+		    }
+		}else{
+		    $host_div[]="Нет данных...";
+		}
+		//$host_div[]="<pre>".print_r($data['services'],true);
+		$host_div[]="</div>";
+		$hosts_div[]=implode("\n",$host_div);
+		//
+
 		$class = "";
 		$poll = isset($data['server']['poll']) ? $data['server']['poll'] : 0;
 		if (!$poll){
@@ -81,10 +102,9 @@ if (chk_auth(1)){
 		}
 		printf("<tr class=\"center%s\">",$class ? " ".$class : "");
 		    printf("<td>%d</td>",$nn++);
-		    print "<td>X</td>";
 		    $title=sprintf("ID хоста: %s",$k);
-		    printf("<td alt=\"%s\" title=\"%s\"><b><a class=\"click\" data-id=\"%s\">%s</a></b>%s</td>",$title,$title,$k,isset($v['name']) ? $v['name'] : "отсутствует",$host_url ? " ".$host_url : "");
-		    $title=sprintf("incarnation: %s",isset($data['host_header']['incarnation']) ? date("d.m.Y H:i:s",$data['host_header']['incarnation']) : "неизвестна");
+		    printf("<td id=\"hostTD_%s\" alt=\"%s\" title=\"%s\"%s><b><a class=\"click\" data-id=\"%s\">%s</a></b>%s</td>",$k,$title,$title,isset($hs['alarm']) ? " class=warn" : "",$k,isset($v['name']) ? $v['name'] : "отсутствует",$host_url ? " ".$host_url : "");
+		    $title=sprintf("Дата старта monit: %s",isset($data['host_header']['incarnation']) ? date("d.m.Y H:i:s",$data['host_header']['incarnation']) : "неизвестна");
 		    printf("<td alt=\"%s\" title=\"%s\">%s</td>",$title,$title,isset($data['fdate']) ? date("d.m.Y H:i:s",$data['fdate']) : "неизвестна");
 
 		    printf("<td>%s сек.</td>",$poll ? $poll : "n/a");
@@ -97,10 +117,6 @@ if (chk_auth(1)){
 		    printf("<td>%s</td>",isset($data['host_header']['version']) ? $data['host_header']['version'] : "отсутствует");
 		print "</tr>";
 
-		$host_div=sprintf("<div id=\"host_%s\" class=\"hidden\">",$k);
-		$host_div .= print_r($data['services'],true);
-		$host_div .= "</div>";
-		$hosts_div[]=$host_div;
 	    }
 	    print "</table>";
 	    print implode("\n",$hosts_div);
