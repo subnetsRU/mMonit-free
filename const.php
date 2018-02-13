@@ -7,12 +7,11 @@
     copyright (c) 2018 MEGA-NET.RU for SUBNETS.RU project (Moscow, Russia)
     Author: Nikolaev Dmitry <virus@subnets.ru>
 */
-date_default_timezone_set('Europe/Moscow');
 setlocale(LC_TIME, "ru_RU.UTF-8");
 setlocale(LC_ALL, array("ru_RU.UTF-8"));
 ini_set('default_charset','UTF-8');
 
-define('VERSION','0.3.0');
+define('VERSION','0.4.0');
 define('SYSTEM_NAME','mMonit-free');
 //
 define('HOST',isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : "localhost");
@@ -48,6 +47,22 @@ $services=array(
     '8' => array(
 	'name' => "Сеть",
 	'key' => 'network',
+    ),
+    '1' => array(
+	'name' => "Проверка директорий",
+	'key' => 'dircheck',
+    ),
+    '2' => array(
+	'name' => "Проверка файлов",
+	'key' => 'filecheck',
+    ),
+    '4' => array(
+	'name' => 'Проверка хостов',
+	'key' => 'hostcheck',
+    ),
+    '-1' => array(
+	'name' => "Неизвестные",
+	'key' => 'unknown',
     ),
 );
 

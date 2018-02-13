@@ -105,12 +105,22 @@ span.copyright > a {
     font-size: 11px;
 }
 
+span#version{
+    float: left;
+    cursor: pointer;
+}
+
 button:active, button:focus {
     outline: none;
 }
 
 small {
     font-size: 80%;
+}
+
+hr{
+    border: 1px black dotted;
+    margin: 10px 20px 10px 20px;
 }
 
 ul {
@@ -153,7 +163,7 @@ tr.warn, td.warn {
     background-color: #e4cf69;
 }
 
-tr.alarm, td.alarm {
+tr.alarm, td.alarm, span.alarm {
     color: red;
 }
 
@@ -164,7 +174,7 @@ td {
     font-size: 12px;
 }
 
-td > span{
+td > span {
     font-size: inherit;
 }
 
@@ -181,10 +191,6 @@ tr.center,td.center {
     vertical-align: middle;
 }
 
-span#version{
-    float: left;
-    cursor: pointer;
-}
 
 div#content{
     width: 100%;
@@ -288,11 +294,6 @@ div#workArea{
     -webkit-border-radius: 10px;	/*Google Chrome*/
     -moz-border-radius: 10px;		/*FireFox*/
     -khtml-border-radius: 10px;		/*Safari*/
-}
-
-span.sessionTime{
-    float: right;
-    margin-right: 20px;
 }
 
 div.error {

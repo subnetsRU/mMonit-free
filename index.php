@@ -64,6 +64,11 @@ print "window.addEvent( 'domready', function( ) {\n";
     });
     ";
 print "});\n";
+print "window.addEvent('keydown',function( e ){
+    if (!MONIT.is_null(e.key) && e.key == 'esc'){
+	MONIT.closeModal();
+    }
+});\n";
 print "</script>\n";
 
 print foot();

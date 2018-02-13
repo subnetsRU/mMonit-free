@@ -61,24 +61,27 @@ if (chk_auth(1)){
 	    print "</thead>";
 	    $nn=1;
 	    foreach($get_hosts['hosts'] as $k=>$v){
-		$data = $v['data'];
+		$data = isset($v['data']) ? $v['data'] : array();
 
-		//Host detailes div
+		//Host detail div
 		$host_div=array();
 		$host_div[]=sprintf("<div id=\"host_%s\" class=\"hidden\">",$k);
-		if(isset($data['services']) && is_array($data['services'])){
-		    $hs=parse_services($data['services']);
-		    foreach ($services as $sk=>$sv){
-			if (isset($hs[$sv['key']])){
-			    $host_div[]=sprintf("<h2>%s</h2>",$sv['name']);
-			    $host_div[]=$hs[$sv['key']];
-			    $host_div[]="<HR>";
-			}
-		    }
+		if (isset($v['error'])){
+		    $host_div[]=error($v['error']);
 		}else{
-		    $host_div[]="Нет данных...";
+		    if(isset($data['services']) && is_array($data['services'])){
+			$hs=parse_services($data['services']);
+			foreach ($services as $sk=>$sv){
+			    if (isset($hs[$sv['key']])){
+				$host_div[]=sprintf("<h2>%s</h2>",$sv['name']);
+				$host_div[]=$hs[$sv['key']];
+				$host_div[]="<HR>";
+			    }
+			}
+		    }else{
+			$host_div[]="Нет данных...";
+		    }
 		}
-		//$host_div[]="<pre>".print_r($data['services'],true);
 		$host_div[]="</div>";
 		$hosts_div[]=implode("\n",$host_div);
 		//
@@ -109,12 +112,12 @@ if (chk_auth(1)){
 
 		    printf("<td>%s сек.</td>",$poll ? $poll : "n/a");
 		    printf("<td>%s</td>",isset($data['server']['uptime']) ? $data['server']['uptime'] : "n/a");
-		    printf("<td>%s %s %s</td>",isset($data['platform']['name']) ? $data['platform']['name'] : "",isset($data['platform']['release']) ? $data['platform']['release'] : "",isset($data['platform']['machine']) ? $data['platform']['machine'] : "");
+		    printf("<td>%s %s %s</td>",isset($data['platform']['name']) ? $data['platform']['name'] : "n/a",isset($data['platform']['release']) ? $data['platform']['release'] : "",isset($data['platform']['machine']) ? $data['platform']['machine'] : "");
 		    printf("<td>%s</td>",isset($data['platform']['cpu']) ? $data['platform']['cpu'] : "n/a");
 		    printf("<td>%s</td>",isset($data['platform']['memory']) ? $data['platform']['memory'] : "n/a");
 		    printf("<td>%s</td>",isset($data['platform']['swap']) ? $data['platform']['swap'] : "n/a");
 		    
-		    printf("<td>%s</td>",isset($data['host_header']['version']) ? $data['host_header']['version'] : "отсутствует");
+		    printf("<td>%s</td>",isset($data['host_header']['version']) ? $data['host_header']['version'] : "n/a");
 		print "</tr>";
 
 	    }
@@ -128,7 +131,6 @@ if (chk_auth(1)){
 	    window.addEvent( 'domready', function( ) {
 		Array.each( $$('#hostsTBL a.click'), function( v, i ){
 		    v.addEvent('click',function( el ){
-			console.log(v.get('data-id'));
 			$('modalHeader').set('html',v.get('text') + ' <small>(' + v.get('data-id') + ')</small>');
 			$('modalContent').set('html',$('host_'+v.get('data-id')).get('html'));
 			MONIT.openModal();

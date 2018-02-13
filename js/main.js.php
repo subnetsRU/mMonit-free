@@ -340,6 +340,8 @@
 		if (MONIT.is_null($('modal').hasClass('hidden'))){
 		    $('modal').addClass('hidden');
 		    $('modalDiv').removeClass('modalShow');
+		    $('modalHeader').empty();
+		    $('modalContent').empty();
 		}
 	    }else{
 		MONIT.console({type: 'error', text: 'closeModal: modal div not found'});

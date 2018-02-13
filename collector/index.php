@@ -3,11 +3,9 @@
     copyright (c) 2018 MEGA-NET.RU for SUBNETS.RU project (Moscow, Russia)
     Author: Nikolaev Dmitry <virus@subnets.ru>
 */
-$pathinfo = dirname(__FILE__);
-require_once(realpath(sprintf("%s/../func.php",$pathinfo)));
-
+require_once(realpath("../func.php"));
 global $allowedHosts;
-$debug = 1;
+$debug = 0;
 
 if ($debug && !defined('LOG')){
     define( 'LOG', fopen(sprintf("%s/collector/data/%s_request.log",LOC,date("Y-m-d",time())),'a+'));
