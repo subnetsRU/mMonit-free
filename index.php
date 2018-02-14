@@ -15,6 +15,19 @@ print "\n<div id=\"content\">";
     print "<div id=\"header\">";
 	print "<div id=\"informer\" class=\"informer hidden\"></div>";
 	printf("<span id=\"version\">%s%s</span>",(defined('SYSTEM_NAME') && SYSTEM_NAME) ? SYSTEM_NAME : "",(defined('VERSION') && VERSION) ? sprintf(" v%s",VERSION) : "");
+	if (defined('CHECK_4_NEW_VERSION') && CHECK_4_NEW_VERSION === true){
+	    if (chk_auth(0)){
+		$check_version=check_version( );
+		if (isset($check_version['error'])){
+		    printf("Проверка наличия новой версии неудалась: <span class=\"alarm\">%s</span>",implode("; ",$check_version['error']));
+		}else{
+		    if (isset($check_version['version'])){
+			printf(":: %s :: ",$check_version['version']);
+		    }
+		}
+	    }
+	}
+	print "<div id=\"collector_check\" style=\"display: inline;\"></div>";
 	printf("<span class=\"copyright\">&copy; <a href=\"http://www.mega-net.ru\" target=\"_blank\">Меганет-2003</a>, %s%s</span>",date("Y",time()) !="2018" ? "2018-": "",date("Y",time()));
     print "</div>";
     print "<!-- header end -->";
@@ -54,16 +67,25 @@ print "window.addEvent( 'domready', function( ) {\n";
     MONIT.mJson({
 	id: 'workArea',
 	location: 'plugins/".$location."',
-    });\n";
-    if (chk_auth()){
-	print "MONIT.addMenuClick( { id: 'mainMenu' } );\n";
-    }
-    print "
+    });
     $('modalClose').addEvent('click',function(){
 	MONIT.closeModal();
-    });
-    ";
+    });\n";
+    if (chk_auth(0)){
+	$collector_timer=(int)COLLECTOR_CHECK_TIMER;
+	if ($collector_timer <= 59){
+	    $collector_timer=60;
+	}
+	print "
+	MONIT.addMenuClick( { id: 'mainMenu' } );
+	MONIT.collector_check_4_errors(".$collector_timer.");
+	setInterval(function(){
+	    MONIT.collector_check_4_errors(".$collector_timer.");
+	},'".($collector_timer*1000)."');
+	\n";
+    }
 print "});\n";
+
 print "window.addEvent('keydown',function( e ){
     if (!MONIT.is_null(e.key) && e.key == 'esc'){
 	MONIT.closeModal();

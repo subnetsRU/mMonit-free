@@ -104,7 +104,11 @@ span.copyright > a {
     color: inherit;
     font-size: 11px;
 }
-
+span.new_version > a:visited{
+    color: red;
+    font-weight: bold;
+    cursor: pointer;
+}
 span#version{
     float: left;
     cursor: pointer;

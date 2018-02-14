@@ -11,7 +11,7 @@ setlocale(LC_TIME, "ru_RU.UTF-8");
 setlocale(LC_ALL, array("ru_RU.UTF-8"));
 ini_set('default_charset','UTF-8');
 
-define('VERSION','0.4.0');
+define('VERSION','1.0.0');
 define('SYSTEM_NAME','mMonit-free');
 //
 define('HOST',isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : "localhost");
@@ -26,7 +26,6 @@ define('URL',sprintf("%s://%s/",PROTO,HOST));
 define('REMOTE_ADDR',(isset($_SERVER['HTTP_X_REAL_IP']) && $_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['HTTP_X_REAL_IP'] : (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : ""));
 //
 define('LOC',dirname(__FILE__));
-define('DATA_DIR',"collector/data");
 //
 define('CHARSET','utf8');
 define('REPLACE_FLAGS', ENT_COMPAT | ENT_XHTML);
@@ -46,19 +45,23 @@ $services=array(
     ),
     '8' => array(
 	'name' => "Сеть",
-	'key' => 'network',
+	'key' => 'net',
     ),
     '1' => array(
 	'name' => "Проверка директорий",
-	'key' => 'dircheck',
+	'key' => 'directory',
     ),
     '2' => array(
 	'name' => "Проверка файлов",
-	'key' => 'filecheck',
+	'key' => 'file',
     ),
     '4' => array(
 	'name' => 'Проверка хостов',
-	'key' => 'hostcheck',
+	'key' => 'host',
+    ),
+    '7' => array(
+	'name' => 'Проверка скриптов',
+	'key' => 'program',
     ),
     '-1' => array(
 	'name' => "Неизвестные",

@@ -347,4 +347,12 @@
 		MONIT.console({type: 'error', text: 'closeModal: modal div not found'});
 	    }
 	}
+
+	MONIT.collector_check_4_errors = function( timer ){
+	    MONIT.console({ level: 'info', text: 'Check collector errors every ' + timer + ' seconds'});
+	    MONIT.mJson({
+		id: 'collector_check',
+		location: 'plugins/collector_check.php',
+	    });
+	}
 }(this));

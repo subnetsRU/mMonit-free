@@ -8,22 +8,33 @@
 date_default_timezone_set('Europe/Moscow');
 
 define('LOGIN','admin');
-define('PASSWORD','admin');
-
-//More info for the developer
+define('PASSWORD','pass_4_monit');
+//
+define('CHECK_4_NEW_VERSION',true);		//check if new version is avail, value is true or false, default true
+define('REFRESH_PAGE',60);			//default page refresh in seconds, default 60
+define('NETWORK_ERRORS_AS_ALARM',false);	//treat network errors as a problem, value is true or false, default false
+//
+define('COLLECTOR_DATA_DIR',"collector/data");	//dir write collector data to
+define('COLLECTOR_LOG_REQUEST',false);		//log all requests to collector, value is true or false, default false
+define('COLLECTOR_CHECK_TIMER',300);		//check and show collector errors if exist, seconds, default is 300
+//
 $developer_ips=array(
     "127.0.0.1",
-    "192.168.255.0/255.255.255.248",
+    "172.16.10.39",
+    "192.168.0.0/255.255.255.0",
 );
-//
 
 //Hosts that allowed to send data to collector
 $allowedHosts=array(
-    '1.1.1.1'=>array(
-	"test1.example.ru",
-	"test2.example.ru",
+    'test.example.ru' => array(
+	'1.1.1.1',
+	'2.2.2.2',
     ),
-    '2.2.2.2'=>"test3.example.ru",
+    'test2.example.ru' => array(
+	'1.1.1.1',
+	'3.3.3.3',
+    ),
+    'test3.example.ru' => '1.2.3.4',
 );
 //
 $sysUsers = array(
