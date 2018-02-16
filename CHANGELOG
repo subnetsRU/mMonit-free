@@ -1,4 +1,14 @@
 ===========
+16.02.2018
+===========
+    Version 1.1.1
+
+    What`s new:
+	* bug fixes
+	* added host group based on FQDN of the host
+	* some other improvements
+
+===========
 14.02.2018
 ===========
     Version 1.0.0 

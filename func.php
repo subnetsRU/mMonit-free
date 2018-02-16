@@ -8,7 +8,7 @@
 set_error_handler("exception_error_handler");
 
 $err=array();
-$const=realpath( dirname(__FILE__) )."/config.php";
+$const=dirname(__FILE__)."/config.php";
 if (is_file($const)){
     if (is_readable($const)){
 	if (!require_once($const)){
@@ -21,7 +21,7 @@ if (is_file($const)){
      $err[]="CONFIG file don`t exists";
 }
 
-$const=realpath( dirname(__FILE__) )."/const.php";
+$const=dirname(__FILE__)."/const.php";
 if (is_file($const)){
     if (is_readable($const)){
 	if (!require_once($const)){
@@ -584,6 +584,7 @@ function chk_auth( $fatal = 0){
 	return 1;
     }else{
 	if ($fatal){
+	    @session_destroy();
 	    print error("Вы не авторизованы");
 	    printf("\n<script>setTimeout(function(){window.location.href='%s';},'3000');</script>\n",URL);
 	    exit(0);
@@ -670,20 +671,31 @@ function get_hosts(){
 	$nn=1;
 	foreach ($list['list'] as $k=>$f){
 	    if (preg_match("/^host_(\S+)_(\S+)\.json$/",$f,$m)){
+		$group=get_group($m[1]);
 		$key = isset($tmp[$m[1]]) ? sprintf("%s_%d",$m[1],$nn) : $m[1];
-		$tmp[$key]=array("monit_id"=>$m[2],"name"=>$m[1],"file"=>$f);
+		$tmp[$group][$key]=array(
+		    'monit_id' => $m[2],
+		    'name' => $m[1],
+		    'file' => $f,
+		    'group' => $group,
+		);
 		$rf=read_host_file(array("file"=>sprintf("%s/%s/%s",LOC,COLLECTOR_DATA_DIR,$f)));
 		if (isset($rf['error'])){
-		    $tmp[$key]['error']=$rf['error'];
+		    $tmp[$group][$key]['error']=$rf['error'];
 		}else{
-		    $tmp[$key]['data']=$rf['data'];
+		    $tmp[$group][$key]['data']=$rf['data'];
 		}
 		$nn++;
 	    }
 	}
 	ksort($tmp);
 	foreach ($tmp as $k=>$v){
-	    $ret['hosts'][$v['monit_id']]=$v;
+	    ksort($tmp[$k]);
+	}
+	foreach ($tmp as $k=>$v){
+	    foreach ($v as $hn=>$hv){
+		$ret['hosts'][$k][$hv['monit_id']]=$hv;
+	    }
 	}
 	if (count($ret['hosts']) == 0){
 	    $err[]=sprintf("Хосты отсутствуют%s",is_developer() ? sprintf(" (file: %s, func: %s, line: %s)",__FILE__,__FUNCTION__,__LINE__) : "");
@@ -692,6 +704,24 @@ function get_hosts(){
 
     if (count($err) > 0){
 	$ret['error']=$err;
+    }
+ return $ret;
+}
+
+function get_group( $name = ""){
+    $ret="z_noname_group";
+    if ($name){
+	$p=parse_url($name);
+	if (isset($p['path']) && $p['path']){
+	    $tmp=explode(".",$p['path']);
+	    if (count($tmp) > 1){
+		if (count($tmp) == 2){
+		    $ret=sprintf("%s.%s",$tmp[0],$tmp[1]);
+		}else{
+		    $ret=sprintf("%s.%s",$tmp[count($tmp)-2],$tmp[count($tmp)-1]);
+		}
+	    }
+	}
     }
  return $ret;
 }

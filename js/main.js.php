@@ -356,3 +356,57 @@
 	    });
 	}
 }(this));
+
+if( typeof Element.prototype.timer === "undefined" ){
+    Element.prototype.timer = function( arg ){
+	var self = this;
+	if( arg === undefined ){
+	    clearTimer( );
+	}else if( typeof arg == 'object' ){
+	    if( /^\d+$/.test( arg.value ) ){
+		if( arg.value === undefined || arg.value == 0 ){
+		    if( self.retrieve( 'timeoutId' ) !== undefined ){
+			clearTimer( );
+		    }
+		}else{
+		    if( typeof arg.callback == 'function' ){
+			if( self.retrieve( 'timeoutId' ) !== undefined ){
+			    clearTimer( );
+			}
+			self.getParent( ).addEventListener( 'DOMNodeRemoved', onElementDestroy, false );
+			if( arg.debug ){
+			    console.log( 'Set timeout: ' + arg.callback + '): ' + arg.value );
+			}
+			self.store( 'timeoutId', setTimeout( function( ){
+			    clearTimer( );
+			    arg.callback( arg.arg );
+			}, arg.value ) );
+		    }
+		}
+	    }
+	}
+
+	function clearTimer( ){
+	    if( self.retrieve( 'timeoutId' ) !== null ){
+		clearTimeout( self.retrieve( 'timeoutId' ) );
+	    }
+	    if( self.getParent( ) ){
+    		self.getParent( ).removeEventListener( 'DOMNodeRemoved', onElementDestroy, false );
+	    }
+	    self.eliminate( 'timeoutId' );
+	}
+
+	function onElementDestroy( e ){
+	    if( arg.debug ){
+		console.log( 'Destroy: ', e );
+	    }
+	    if( e.target.id == self.id ){
+		if( arg.debug ){
+		    console.log( 'clear timer for self: id ' + e.target.id );
+		}
+		clearTimer( self );
+	    }
+	}
+	return self;
+    }
+}

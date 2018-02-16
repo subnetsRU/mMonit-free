@@ -38,7 +38,7 @@ print "\n<div id=\"content\">";
 	$menu=menu();
 	if (is_array($menu) && count($menu) > 0){
 	    foreach ($menu as $v){
-		printf("<li class=\"menuBtn %s\"><a class=\"menu\" %shref=\"%sindex.php?location=%s\"><span>%s</span></a></li>",$v['class'],(isset($directSCI)&&$directSCI==$v['class_id']) ? "class=\"active\"" : "",URL,$v['location'],$v['text']);
+		printf("<li class=\"menuBtn%s\"><a class=\"menu\" href=\"%sindex.php?location=%s\"><span>%s</span></a></li>",isset($v['class']) ? " ".$v['class'] : "",URL,$v['location'],$v['text']);
 	    }
 	}
 	print "</ul>";
@@ -58,7 +58,7 @@ print "<div id=\"modalDiv\" class=\"modal\">";
 	print "<div id=\"modalHeader\" class=\"modal-header\">Заголовок</div>";
 	print "<div id=\"modalContent\" class=\"modal-content\"></div>";
 	print "<span id=\"modalClose\" class=\"modal-close\" alt=\"Закрыть\" title=\"Закрыть\" ></span>";
-//		styles: windowStyles,
+    print "</div>";
 print "</div>";
 
 print "\n<script>\n";

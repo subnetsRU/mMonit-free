@@ -49,7 +49,7 @@ if (isset($param['data']) && $param['data']){
 	print goback($param,array("update"=>"workArea"));
     }
 }else{
-    if (isset($_SESSION['auth']) && $_SESSION['auth']){
+    if (isset($_SESSION['auth']) && $_SESSION['auth'] == 1){
 	login_logedin();
     }else{
 	print "<table id=\"tbl_login\" class=\"tbl_login\">";
@@ -79,6 +79,7 @@ if (isset($param['data']) && $param['data']){
 
 	print "\n<script>
 	    window.addEvent( 'domready', function( ) {
+		    $('login').focus();
 		    $('enterByLoginBtn').addEvent('click',function(){
 			gm5();
 		    });

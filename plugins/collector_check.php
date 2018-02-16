@@ -5,10 +5,10 @@
 */
 $pathinfo = dirname(__FILE__);
 require_once(realpath(sprintf("%s/../func.php",$pathinfo)));
-$location=preg_replace("/^\//","",$_SERVER['REQUEST_URI']);
 //deb("Request: ".print_r($param,true));
 
 if (chk_auth(1)){
+    $location=preg_replace("/^\//","",$_SERVER['REQUEST_URI']);
     $check=collector_check_4_errors();
     //deb($check);
     if ($check){
