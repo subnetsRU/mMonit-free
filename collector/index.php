@@ -18,7 +18,7 @@ if ($_GET){
 }
 $err=array();
 
-$request = isset($GLOBALS['HTTP_RAW_POST_DATA']) ? $GLOBALS['HTTP_RAW_POST_DATA'] : "";
+$request = isset($GLOBALS['HTTP_RAW_POST_DATA']) ? $GLOBALS['HTTP_RAW_POST_DATA'] : file_get_contents("php://input");
 $requestID = mtime( );
 logg(sprintf("<%s> Connect from: %s method %s",$requestID,REMOTE_ADDR != "0.0.0.0" ? REMOTE_ADDR : "unknown",isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : "unknown"));
 if (count($params) > 0){

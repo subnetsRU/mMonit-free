@@ -11,7 +11,7 @@ setlocale(LC_TIME, "ru_RU.UTF-8");
 setlocale(LC_ALL, array("ru_RU.UTF-8"));
 ini_set('default_charset','UTF-8');
 
-define('VERSION','1.1.1');
+define('VERSION','1.1.2');
 define('SYSTEM_NAME','mMonit-free');
 //
 define('HOST',isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : "localhost");

@@ -1,4 +1,12 @@
 ===========
+06.07.2021
+===========
+    Version 1.1.2
+
+    What`s new:
+	* fix collector for work with php 7.2
+
+===========
 16.02.2018
 ===========
     Version 1.1.1
